@@ -29,20 +29,20 @@ See more at http://blog.squix.ch
 void WeatherClient::updateWeatherData(String apiKey, double lat, double lon) {
   WiFiClient client;
   const int httpPort = 80;
-  if (!client.connect("217.26.50.8", httpPort)) {
+  if (!client.connect("YOURDOMAINNAME", httpPort)) {
     Serial.println("connection failed");
     return;
   }
   
   // We now create a URI for the request
-  String url = "/rest/weather?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
+  String url = "http://YOURDOMAINNAME/weather.php?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
   
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
   // This will send the request to the server
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: www.squix.org\r\n" + 
+               "Host: YOURDOMAINNAME\r\n" + 
                "Connection: close\r\n\r\n");
   while(!client.available()) {
     

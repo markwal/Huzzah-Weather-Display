@@ -32,9 +32,27 @@ See more at http://blog.squix.ch
 #include <ESP8266WiFi.h>
 #include "WeatherClient.h"
 
+#define SDA 14
+#define SCL 12
+//#define RST 2
+
+#define I2C 0x3D
+
+#define WIFISSID "YOUR_WIFI_SSID"
+#define PASSWORD "YOUR_WIFI_PASSWORD"
+
+#define FORECASTAPIKEY "YOUR_FORECAST_API_KEY"
+
+// New York City
+#define LATITUDE 40.71
+#define LONGITUDE -74
+
+
+
 // Initialize the oled display for address 0x3c
+// 0x3D is the adafruit address....
 // sda-pin=14 and sdc-pin=12
-SSD1306 display(0x3c, 14, 12);
+SSD1306 display(I2C, SDA, SCL);
 WeatherClient weather;
 Ticker ticker;
 
@@ -48,24 +66,31 @@ int frameCount = 3;
 int currentFrame = 0;
 
 // your network SSID (name)
-char ssid[] = "<SSID>";
+char ssid[] = WIFISSID;
+
 // your network password
-char pass[] = "<PWD>";  
+char pass[] = PASSWORD;
 
 // Go to forecast.io and register for an API KEY
-String forecastApiKey = "<YOUR_API_KEY>";
+String forecastApiKey = FORECASTAPIKEY;
 
 // Coordinates of the place you want
 // weather information for
-double latitude = 47.3;
-double longitude = 8.5;
+double latitude = LATITUDE;
+double longitude = LONGITUDE;
 
 // flag changed in the ticker function every 10 minutes
 bool readyForWeatherUpdate = true;
 
 void setup() {
-  // initialize dispaly
+  delay(500);
+  //ESP.wdtDisable();
+
+
+
+  // initialize display
   display.init();
+  display.flipScreenVertically();
   // set the drawing functions
   display.setFrameCallbacks(3, frameCallbacks);
   // how many ticks does a slide of frame take?
@@ -73,31 +98,34 @@ void setup() {
 
   display.clear();
   display.display();
-  
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println();
 
+  Serial.begin(115200);
+  delay(500);
+
+  Serial.println();
+  Serial.println();
   // We start by connecting to a WiFi network
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, pass);
-  
+
   int counter = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
+
     display.clear();
-    display.drawXbm(34,10, 60, 36, WiFi_Logo_bits);
+    display.drawXbm(34, 10, 60, 36, WiFi_Logo_bits);
     display.setColor(INVERSE);
     display.fillRect(10, 10, 108, 44);
     display.setColor(WHITE);
     drawSpinner(3, counter % 3);
     display.display();
+
     counter++;
   }
   Serial.println("");
-  
+
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
@@ -105,84 +133,92 @@ void setup() {
   // update the weather information every 10 mintues only
   // forecast.io only allows 1000 calls per day
   ticker.attach(60 * 10, setReadyForWeatherUpdate);
+
+  //ESP.wdtEnable();
 }
 
 void loop() {
+
   if (readyForWeatherUpdate && display.getFrameState() == display.FRAME_STATE_FIX) {
     readyForWeatherUpdate = false;
-    weather.updateWeatherData(forecastApiKey, latitude, longitude);  
+    weather.updateWeatherData(forecastApiKey, latitude, longitude);
   }
+
   display.clear();
   display.nextFrameTick();
   display.display();
 }
 
 void setReadyForWeatherUpdate() {
-  readyForWeatherUpdate = true;  
+  readyForWeatherUpdate = true;
 }
 
 void drawFrame1(int x, int y) {
-   display.setFontScale2x2(false);
-   display.drawString(65 + x, 8 + y, "Now");
-   display.drawXbm(x+7,y+7, 50, 50, getIconFromString(weather.getCurrentIcon()));
-   display.setFontScale2x2(true);
-   display.drawString(64+ x, 20 + y, String(weather.getCurrentTemp()) + "C"); 
+  display.setFontScale2x2(false);
+  display.drawString(65 + x, 8 + y, "Now");
+  display.drawXbm(x + 7, y + 7, 50, 50, getIconFromString(weather.getCurrentIcon()));
+  display.setFontScale2x2(true);
+  display.drawString(64 + x, 20 + y, String(weather.getCurrentTemp()) + "F");
+
+  //display.setFontScale2x2(false);
+  //display.drawString(50 + x, 40 + y, String(weather.getSummaryToday()));
+
 }
 
 const char* getIconFromString(String icon) {
-   //"clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night"
+  //"clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night"
   if (icon == "clear-day") {
     return clear_day_bits;
   } else if (icon == "clear-night") {
-    return clear_night_bits;  
+    return clear_night_bits;
   } else if (icon == "rain") {
-    return rain_bits;  
+    return rain_bits;
   } else if (icon == "snow") {
-    return snow_bits;  
+    return snow_bits;
   } else if (icon == "sleet") {
-    return sleet_bits;  
+    return sleet_bits;
   } else if (icon == "wind") {
-    return wind_bits;  
+    return wind_bits;
   } else if (icon == "fog") {
-    return fog_bits;  
+    return fog_bits;
   } else if (icon == "cloudy") {
-    return cloudy_bits;  
+    return cloudy_bits;
   } else if (icon == "partly-cloudy-day") {
-    return partly_cloudy_day_bits;  
+    return partly_cloudy_day_bits;
   } else if (icon == "partly-cloudy-night") {
-    return partly_cloudy_night_bits;  
-  } 
+    return partly_cloudy_night_bits;
+  }
   return cloudy_bits;
 }
 
 void drawFrame2(int x, int y) {
-   display.setFontScale2x2(false);
-   display.drawString(65 + x, 0 + y, "Today");
-   display.drawXbm(x,y, 60, 60, xbmtemp);
-   display.setFontScale2x2(true);
-   display.drawString(64 + x, 14 + y, String(weather.getCurrentTemp()) + "C");
-   display.setFontScale2x2(false);
-   display.drawString(66 + x, 40 + y, String(weather.getMinTempToday()) + "C/" + String(weather.getMaxTempToday()) + "C");  
+  display.setFontScale2x2(false);
+  display.drawString(65 + x, 0 + y, "Today");
+  display.drawXbm(x, y, 60, 60, xbmtemp);
+  display.setFontScale2x2(true);
+  display.drawString(64 + x, 14 + y, String(weather.getCurrentTemp()) + "F");
+  display.setFontScale2x2(false);
+  display.drawString(66 + x, 40 + y, String(weather.getMinTempToday()) + "F/" + String(weather.getMaxTempToday()) + "F");
 
 }
 
 void drawFrame3(int x, int y) {
-   display.drawXbm(x+7,y+7, 50, 50, getIconFromString(weather.getIconTomorrow()));
-   display.setFontScale2x2(false);
-   display.drawString(65 + x, 7 + y, "Tomorrow");
-   display.setFontScale2x2(true);
-   display.drawString(64+ x, 20 + y, String(weather.getMaxTempTomorrow()) + "C");     
+  display.drawXbm(x + 7, y + 7, 50, 50, getIconFromString(weather.getIconTomorrow()));
+  display.setFontScale2x2(false);
+  display.drawString(65 + x, 7 + y, "Tomorrow");
+  display.setFontScale2x2(true);
+  display.drawString(64 + x, 20 + y, String(weather.getMaxTempTomorrow()) + "F");
 }
 
 void drawSpinner(int count, int active) {
   for (int i = 0; i < count; i++) {
     const char *xbm;
     if (active == i) {
-       xbm = active_bits;
+      xbm = active_bits;
     } else {
-       xbm = inactive_bits;  
+      xbm = inactive_bits;
     }
-    display.drawXbm(64 - (12 * count / 2) + 12 * i,56, 8, 8, xbm);
-  }   
+    display.drawXbm(64 - (12 * count / 2) + 12 * i, 56, 8, 8, xbm);
+  }
 }
 

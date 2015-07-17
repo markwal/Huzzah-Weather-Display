@@ -6,7 +6,7 @@
         $unitsParam = $_GET["units"];
         $langParam = $_GET["lang"];
 
-        $units = 'auto';  // Can be set to 'us', 'si', 'ca', 'uk' or 'auto' (see forecast.io API); default is auto
+        $units = 'us';  // Can be set to 'us', 'si', 'ca', 'uk' or 'auto' (see forecast.io API); default is auto
         $lang = 'en'; // Can be set to 'en', 'de', 'pl', 'es', 'fr', 'it', 'tet' or 'x-pig-latin' (see forecast.io API); default is 'en'
 
         if($unitsParam != "") {
@@ -15,7 +15,7 @@
         if($langParam != "") {
                 $lang = $langParam;
         }
-        error_log(date(DATE_RFC822)." -- api=".$apiKeyParam.",lat=".$latParam.",lon=".$lonParam.",units=".$units.",lang=".$lang."\n", 3, '/home/squixor/weather.log');
+        //error_log(date(DATE_RFC822)." -- api=".$apiKeyParam.",lat=".$latParam.",lon=".$lonParam.",units=".$units.",lang=".$lang."\n", 3, '/home/squixor/weather.log');
         $forecast = new ForecastIO($apiKeyParam, $units, $lang);
         $condition = $forecast->getCurrentConditions($latParam, $lonParam);
         echo "CURRENT_TEMP=".round($condition->getTemperature())."\n";

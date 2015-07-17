@@ -40,7 +40,7 @@ class WeatherClient {
     String iconTomorrow;
     String summaryTomorrow;
     String apiKey;
-    String myUnits = "auto";
+    String myUnits = "us";
     String myLanguage;
     
     String getValue(String line);

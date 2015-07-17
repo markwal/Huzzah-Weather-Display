@@ -44,7 +44,7 @@ private:
    int myFrameTick = 0;
    int myCurrentFrame = 0;
    int myFrameCount = 0;
-   int myFrameWaitTicks = 100;
+   int myFrameWaitTicks = 80;
    int myFrameTransitionTicks = 25;
    int myColor = WHITE;
    void (**myFrameCallbacks)(int x, int y);
