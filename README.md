@@ -1,4 +1,4 @@
- WORD CLOCK - NeoMatrix 8x8 Desktop Edition
+Huzzah Weather Display
 ================
  by Andy Doro & Dano Wall
  
@@ -12,6 +12,7 @@ Hardware:
 Software:
  
 This code requires the following libraries:
+
  
 
 
