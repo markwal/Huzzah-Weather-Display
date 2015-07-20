@@ -13,21 +13,6 @@ Hardware:
 - Monochrome 1.3" 128x64 OLED graphic display https://www.adafruit.com/products/938
 - USB micro-B breakout https://www.adafruit.com/products/1833
  
-
-Software:
- 
-This code requires the following libraries:
-
- 
-
-
-Wiring:
-
-
- 
-Construction:
-
-
  
 
 Acknowledgements:
