@@ -15,7 +15,7 @@
         if($langParam != "") {
                 $lang = $langParam;
         }
-        //error_log(date(DATE_RFC822)." -- api=".$apiKeyParam.",lat=".$latParam.",lon=".$lonParam.",units=".$units.",lang=".$lang."\n", 3, '/home/squixor/weather.log');
+        //error_log(date(DATE_RFC822)." -- api=".$apiKeyParam.",lat=".$latParam.",lon=".$lonParam.",units=".$units.",lang=".$lang."\n", 3, '/home/weather.log');
         $forecast = new ForecastIO($apiKeyParam, $units, $lang);
         $condition = $forecast->getCurrentConditions($latParam, $lonParam);
         echo "CURRENT_TEMP=".round($condition->getTemperature())."\n";
