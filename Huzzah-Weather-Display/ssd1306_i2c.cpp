@@ -270,7 +270,7 @@ void SSD1306::nextFrameTick() {
       (*myFrameCallbacks[myCurrentFrame])(0, 0);
       break;
     case 1:
-      (*myFrameCallbacks[myCurrentFrame])(-128 * myFrameTick / myFramedtionTicks, 0);
+      (*myFrameCallbacks[myCurrentFrame])(-128 * myFrameTick / myFrameTransitionTicks, 0);
       (*myFrameCallbacks[(myCurrentFrame + 1) % myFrameCount])(-128 * myFrameTick / myFrameTransitionTicks + 128, 0);
       break;
   }
