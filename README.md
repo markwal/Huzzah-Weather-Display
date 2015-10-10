@@ -1,5 +1,7 @@
 Huzzah Weather Display
 ================
+
+For a tutorial and more information see https://learn.adafruit.com/huzzah-weather-display
  
 Modified from https://github.com/squix78/esp8266-projects/tree/master/arduino-ide/weather-station-v2 by Daniel Eichhorn to work with Adafruit hardware.
 
