@@ -26,17 +26,22 @@ See more at http://blog.squix.ch
 #include "WeatherClient.h"
 #include <ESP8266WiFi.h>
 
-void WeatherClient::updateWeatherData(String apiKey, double lat, double lon) {
+void WeatherClient::updateWeatherData(String domainName, String apiKey, double lat, double lon) {
   WiFiClient client;
   const int httpPort = 80;
-  if (!client.connect("YOURDOMAINNAME", httpPort)) {
-    Serial.println("connection failed");
-    return;
+
+  Serial.print("Connecting to server: ");
+  Serial.println(domainName);
+  
+  // connnect to our server
+  while (!client.connect(domainName.c_str(), httpPort)) {
+    Serial.println("connection failed, retrying...");
+    delay(10000);
   }
   
   // We now create a URI for the request
-  String url = "http://YOURDOMAINNAME/weather.php?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
-  
+  String url = "http://" + domainName + "/weather.php?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
+
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
@@ -44,6 +49,8 @@ void WeatherClient::updateWeatherData(String apiKey, double lat, double lon) {
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: YOURDOMAINNAME\r\n" + 
                "Connection: close\r\n\r\n");
+
+  // wait for response from server
   while(!client.available()) {
     
     delay(200); 
