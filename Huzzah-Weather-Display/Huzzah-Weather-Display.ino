@@ -42,12 +42,11 @@ See more at http://blog.squix.ch
 #define PASSWORD "YOUR_WIFI_PASSWORD"
 
 #define FORECASTAPIKEY "YOUR_FORECAST_API_KEY"
+#define DOMAINNAME "YOUR_DOMAIN_NAME"
 
 // New York City
 #define LATITUDE 40.71
 #define LONGITUDE -74
-
-
 
 // Initialize the oled display for address 0x3c
 // 0x3D is the adafruit address....
@@ -74,6 +73,9 @@ char pass[] = PASSWORD;
 // Go to forecast.io and register for an API KEY
 String forecastApiKey = FORECASTAPIKEY;
 
+// website domain name
+String webDomain = DOMAINNAME;
+
 // Coordinates of the place you want
 // weather information for
 double latitude = LATITUDE;
@@ -85,8 +87,6 @@ bool readyForWeatherUpdate = true;
 void setup() {
   delay(500);
   //ESP.wdtDisable();
-
-
 
   // initialize display
   display.init();
@@ -141,7 +141,7 @@ void loop() {
 
   if (readyForWeatherUpdate && display.getFrameState() == display.FRAME_STATE_FIX) {
     readyForWeatherUpdate = false;
-    weather.updateWeatherData(forecastApiKey, latitude, longitude);
+    weather.updateWeatherData(webDomain, forecastApiKey, latitude, longitude);
   }
 
   display.clear();
@@ -151,18 +151,6 @@ void loop() {
 
 void setReadyForWeatherUpdate() {
   readyForWeatherUpdate = true;
-}
-
-void drawFrame1(int x, int y) {
-  display.setFontScale2x2(false);
-  display.drawString(65 + x, 8 + y, "Now");
-  display.drawXbm(x + 7, y + 7, 50, 50, getIconFromString(weather.getCurrentIcon()));
-  display.setFontScale2x2(true);
-  display.drawString(64 + x, 20 + y, String(weather.getCurrentTemp()) + "F");
-
-  //display.setFontScale2x2(false);
-  //display.drawString(50 + x, 40 + y, String(weather.getSummaryToday()));
-
 }
 
 const char* getIconFromString(String icon) {
@@ -191,6 +179,16 @@ const char* getIconFromString(String icon) {
   return cloudy_bits;
 }
 
+void drawFrame1(int x, int y) {
+  display.setFontScale2x2(false);
+  display.drawString(65 + x, 8 + y, "Now");
+  display.drawXbm(x + 7, y + 7, 50, 50, getIconFromString(weather.getCurrentIcon()));
+  display.setFontScale2x2(true);
+  display.drawString(64 + x, 20 + y, String(weather.getCurrentTemp()) + "F");
+  display.setFontScale2x2(false);
+  display.drawString(50 + x, 40 + y, String(weather.getCurrentSummary()));
+}
+
 void drawFrame2(int x, int y) {
   display.setFontScale2x2(false);
   display.drawString(65 + x, 0 + y, "Today");
@@ -199,7 +197,6 @@ void drawFrame2(int x, int y) {
   display.drawString(64 + x, 14 + y, String(weather.getCurrentTemp()) + "F");
   display.setFontScale2x2(false);
   display.drawString(66 + x, 40 + y, String(weather.getMinTempToday()) + "F/" + String(weather.getMaxTempToday()) + "F");
-
 }
 
 void drawFrame3(int x, int y) {
@@ -207,7 +204,9 @@ void drawFrame3(int x, int y) {
   display.setFontScale2x2(false);
   display.drawString(65 + x, 7 + y, "Tomorrow");
   display.setFontScale2x2(true);
-  display.drawString(64 + x, 20 + y, String(weather.getMaxTempTomorrow()) + "F");
+  display.drawString(64 + x, 20 + y, String(weather.getMaxTempTomorrow()) + "F max");
+   display.setFontScale2x2(false);
+  display.drawString(66 + x, 40 + y, String(weather.getMinTempTomorrow()) + "F min");
 }
 
 void drawSpinner(int count, int active) {
