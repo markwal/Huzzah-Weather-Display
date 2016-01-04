@@ -46,25 +46,33 @@ See more at http://blog.squix.ch
 #define OLED_RESET 4
 
 // software SPI
-// Uncomment the following line for software SPI (and comment out the other)
+// Uncomment the following line for software SPI (and comment out the others)
 //Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
 
 // hardware SPI
 // hardware SPI on the Huzzah ESP8266 is: MOSI 13, CLK 14, DC 2, CS 5, RESET 4
-// Uncomment the following line for hardware SPI (and comment out the other)
+// Uncomment the following line for hardware SPI (and comment out the others)
 Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
-#endif
 
-#define WIFISSID "YourSSIDhere"
-#define PASSWORD "your wifi password here"
+// I2C
+// Uncomment the following lines for i2c (and comment out the others)
+// Note: currently Adafruit's SSD1306 doesn't support specifying SDA and SCL
+// so only works with the default's for your hardware
+// I think the default on the Huzzah ESP8266 is: SDA 4 SCL 5
+// so you probably need to move OLED_RESET to somewhere else also
+// #define I2C 0x3D
+// Adafruit_SSD1306 display(OLED_RESET)
 
-#define FORECASTAPIKEY "your forecast api key here"
-#define DOMAINNAME "dnspi"
-#define PORT 5000
+#define WIFISSID "YOUR_WIFI_SSID"
+#define PASSWORD "YOUR_WIFI_PASSWORD"
 
-// Kirkland
-#define LATITUDE 47.69
-#define LONGITUDE -122.21
+#define FORECASTAPIKEY "YOUR_FORECAST_API_KEY"
+#define DOMAINNAME "YOUR_DOMAIN_NAME"
+#define PORT 80
+
+// New York City
+#define LATITUDE 40.71
+#define LONGITUDE -74
 
 FrameFlipper flipper(&display);
 WeatherClient weather;
@@ -186,13 +194,15 @@ void drawSpinner(int count, int active) {
 
 void setup() {
 
+#ifdef I2C
+  display.begin(SSD1306_SWITCHCAPVCC, I2C);
+#else
   display.begin(SSD1306_SWITCHCAPVCC); // generate high voltage from the 3.3v line
   display.display();
-  
+
   Serial.begin(115200);
   delay(500);
   Serial.println();
-  Serial.println("Trying to do hello world.");
 
   display.setTextSize(1);
   display.setTextColor(WHITE);
