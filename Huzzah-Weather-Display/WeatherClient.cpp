@@ -26,9 +26,8 @@ See more at http://blog.squix.ch
 #include "WeatherClient.h"
 #include <ESP8266WiFi.h>
 
-void WeatherClient::updateWeatherData(String domainName, String apiKey, double lat, double lon) {
+void WeatherClient::updateWeatherData(String domainName, int httpPort, String apiKey, double lat, double lon) {
   WiFiClient client;
-  const int httpPort = 80;
 
   Serial.print("Connecting to server: ");
   Serial.println(domainName);
@@ -40,14 +39,14 @@ void WeatherClient::updateWeatherData(String domainName, String apiKey, double l
   }
   
   // We now create a URI for the request
-  String url = "http://" + domainName + "/weather.php?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
+  String url = "http://" + domainName + "/?apiKey=" + apiKey + "&lat=" + String(lat) + "&lon=" + String(lon) + "&units=" + myUnits;
 
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
   // This will send the request to the server
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: YOURDOMAINNAME\r\n" + 
+               "Host: " + domainName + "\r\n" + 
                "Connection: close\r\n\r\n");
 
   // wait for response from server
@@ -59,7 +58,7 @@ void WeatherClient::updateWeatherData(String domainName, String apiKey, double l
   // Read all the lines of the reply from server and print them to Serial
   while(client.available()){
     String line = client.readStringUntil('\n');
-    //Serial.println(line);
+    Serial.println(line);
     String key = getKey(line);
     if (key.length() > 0) {
       String value = getValue(line);
@@ -85,7 +84,7 @@ void WeatherClient::updateWeatherData(String domainName, String apiKey, double l
          iconTomorrow = value;
         } else if (key =="MIN_TEMP_TOMORROW") {
          minTempTomorrow = value.toInt();
-        } else if (key =="SUMMARY_TODAY") {
+        } else if (key =="SUMMARY_TOMORROW") {
          summaryTomorrow = value;
         } 
 
