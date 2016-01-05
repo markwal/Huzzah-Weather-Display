@@ -71,7 +71,6 @@ void drawTextWordWrapped(Adafruit_GFX &display, int16_t x, int16_t y, int16_t wi
         if (x > left && x + word_width >= right) {
             x = left;
             y += word_height;
-            Serial.println("\\w");
 
             // since we wrapped, eat the leading spaces.
             while (*pword == ' ')
