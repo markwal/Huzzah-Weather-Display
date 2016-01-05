@@ -71,10 +71,8 @@ void FrameFlipper::nextFrameTick() {
     case 1:
       w = myDisplay->width();
       x = -w * myFrameTick / myFrameTransitionTicks;
-      myDisplay->setTextRightMargin(x + w);
       (*myFrameCallbacks[myCurrentFrame])(x, 0);
       x += w;
-      myDisplay->setTextRightMargin(x + w);
       (*myFrameCallbacks[(myCurrentFrame + 1) % myFrameCount])(x, 0);
       break;
   }

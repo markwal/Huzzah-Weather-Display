@@ -36,8 +36,7 @@ See more at http://blog.squix.ch
 
 #include "WeatherClient.h"
 #include "frame_flipper.h"
-
-#include <Fonts/FreeSans9pt7b.h>
+#include "word_wrap.h"
 
 #define OLED_MOSI  13
 #define OLED_CLK   14
@@ -68,11 +67,11 @@ Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);
 
 #define FORECASTAPIKEY "YOUR_FORECAST_API_KEY"
 #define DOMAINNAME "YOUR_DOMAIN_NAME"
-#define PORT 80
+#define PORT 5000
 
-// New York City
-#define LATITUDE 40.71
-#define LONGITUDE -74
+// Kirkland, Washington
+#define LATITUDE 47.69
+#define LONGITUDE -122.21
 
 FrameFlipper flipper(&display);
 WeatherClient weather;
@@ -143,41 +142,39 @@ const uint8_t *getIconFromString(String icon) {
 }
 
 void drawFrame1(int x, int y) {
-  display.drawXBitmap(x, 5 + y, getIconFromString(weather.getCurrentIcon()), 50, 50, WHITE);
+  display.drawXBitmap(x, 14 + y, getIconFromString(weather.getCurrentIcon()), 50, 50, WHITE);
   display.setTextSize(1);
-  display.setCursor(55 + x, 0 + y);
-  display.setTextLeftMargin(55 + x);
-  display.setTextRightMargin(128 + x);
+  display.setCursor(x, y);
   display.println("Now");
-  display.setFont(&FreeSans9pt7b);
+  display.setTextSize(2);
+  display.setCursor(55 + x, 0 + y);
   display.println(String(weather.getCurrentTemp()) + "F");
-  display.setFont();
+  display.setTextSize(1);
+  display.setCursor(55 + x, display.getCursorY());
   display.println(String(weather.getCurrentHumidity()) + "% humidity");
-  display.println(String(weather.getCurrentSummary()));
+  drawTextWordWrapped(display, 55 + x, display.getCursorY(), 73, weather.getCurrentSummary());
 }
 
 void drawFrame2(int x, int y) {
-  display.drawXBitmap(x, 5 + y, getIconFromString(weather.getIconToday()), 50, 50, WHITE);
+  display.drawXBitmap(x, 14 + y, getIconFromString(weather.getIconToday()), 50, 50, WHITE);
   display.setTextSize(1);
-  display.setCursor(55 + x, 0 + y);
-  display.setTextLeftMargin(55 + x);
-  display.setTextRightMargin(128 + x);
+  display.setCursor(x, y);
   display.println("Today");
+  display.setCursor(55 + x, 0 + y);
   display.println(String(weather.getMaxTempToday()) + "F/" + String(weather.getMinTempToday()) + "F");
   display.setCursor(55 + x, display.getCursorY() + 4);
-  display.println(String(weather.getSummaryToday()));
+  drawTextWordWrapped(display, 55 + x, display.getCursorY(), 73, weather.getSummaryToday());
 }
 
 void drawFrame3(int x, int y) {
-  display.drawXBitmap(x, 5 + y, getIconFromString(weather.getIconTomorrow()), 50, 50, WHITE);
+  display.drawXBitmap(x, 14 + y, getIconFromString(weather.getIconTomorrow()), 50, 50, WHITE);
   display.setTextSize(1);
-  display.setCursor(55 + x, 0 + y);
-  display.setTextLeftMargin(55 + x);\
-  display.setTextRightMargin(128 + x);
+  display.setCursor(x, y);
   display.println("Tomorrow");
+  display.setCursor(55 + x, 0 + y);
   display.println(String(weather.getMaxTempTomorrow()) + "F/" + String(weather.getMinTempTomorrow()) + "F");
   display.setCursor(55 + x, display.getCursorY() + 4);
-  display.println(String(weather.getSummaryTomorrow()));
+  drawTextWordWrapped(display, 55 + x, display.getCursorY(), 73, weather.getSummaryTomorrow());
 }
 
 void drawSpinner(int count, int active) {
@@ -198,6 +195,7 @@ void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, I2C);
 #else
   display.begin(SSD1306_SWITCHCAPVCC); // generate high voltage from the 3.3v line
+#endif
   display.display();
 
   Serial.begin(115200);
@@ -205,6 +203,7 @@ void setup() {
   Serial.println();
 
   display.setTextSize(1);
+  display.setTextWrap(false);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
 
